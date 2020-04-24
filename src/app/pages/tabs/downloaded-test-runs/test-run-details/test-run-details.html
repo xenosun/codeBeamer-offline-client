@@ -1,0 +1,122 @@
+<!--
+Copyright 2020 Intland Software GmbH
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<ion-header>
+  <ion-toolbar color="downloaded-test-runs">
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBackToDownloadedTestRuns()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>Back
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{testRun?.testRunName}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" style="overflow-y: scroll;">
+  <div #topContainer>
+    <ion-item>
+      Completed Test Cases: {{testRun?.initializedTestRun.completedTestRuns}}
+      of {{testRun?.initializedTestRun.leafChildTrackerItems.length}}
+    </ion-item>
+    <ion-item>
+      Total run time:
+      <timer [isPaused]="true" [startTime]="{value: testRun?.initializedTestRun.totalRunTime, index: 0}"></timer>
+    </ion-item>
+    <ion-item>
+      Status:
+      <ion-badge>{{testRun?.initializedTestRun.testRunStatus}}</ion-badge>
+    </ion-item>
+    <ion-item *ngIf="testRun?.initializedTestRun.testRun.testConfiguration">
+      Configuration: {{testRun?.initializedTestRun.testRun.testConfiguration.name}}
+    </ion-item>
+    <ion-item *ngIf="testRun?.initializedTestRun.conclusion">
+      Conclusion: {{testRun?.initializedTestRun.conclusion}}
+    </ion-item>
+
+    <ion-list-header class="no-padding-list-header">Description</ion-list-header>
+    <p [innerHTML]="testRun?.initializedTestRun.testRun.description | sanitize"></p>
+  </div>
+
+  <!-- [ngStyle]="{'height': 'calc(100% - ' + topContainer.offsetHeight + 'px)', 'min-height': '70%'}" -->
+  <ion-slides #slides pager>
+    <ion-slide *ngFor="let initializedTestCase of testRun?.initializedTestCases; let testCaseIndex = index">
+      <div class="ion-padding" style="width: 100%">
+        <div class="toolbar">
+          <div>
+            <ion-button fill="outline" (click)="runTestCase()">Run Test Case</ion-button>
+          </div>
+          <div>
+            {{testCaseIndex + 1}} / {{testRun?.initializedTestCases?.length}}
+          </div>
+          <div>
+            <ion-button *ngIf="initializedTestCase.bugs && initializedTestCase.bugs.length"
+                        fill="outline" (click)="showBugs()">Show Reported
+              Bugs
+            </ion-button>
+          </div>
+        </div>
+
+        <h5>{{initializedTestCase.testCaseTrackerItem.name}}
+          <div style="float: right;">
+            <ion-badge *ngIf="initializedTestCase.childTestRun.result"
+                       [color]="initializedTestCase.childTestRun.result.id == 1 ? 'success' : 'danger'">
+              {{initializedTestCase.childTestRun.result.name | uppercase}}
+            </ion-badge>
+          </div>
+        </h5>
+
+        <ion-list-header class="no-padding-list-header">Description</ion-list-header>
+        <p style="text-align: left;" [innerHTML]="initializedTestCase.testCaseTrackerItem.description | sanitize"></p>
+
+        <ion-list-header class="no-padding-list-header"
+                         *ngIf="initializedTestCase.testCaseTrackerItem.preAction">Pre-Action
+        </ion-list-header>
+        <p style="text-align: left;" [innerHTML]="initializedTestCase.testCaseTrackerItem.preAction | sanitize"></p>
+
+        <ion-list>
+          <ion-list-header class="no-padding-list-header">Test steps</ion-list-header>
+
+          <ion-item *ngFor="let step of initializedTestCase.testStepsWithResults; let testStepIndex = index">
+            {{testStepIndex + 1}}.&nbsp;<span [innerHTML]="step.actionPreview | sanitize"></span>
+            <ion-badge slot="end" *ngIf="step.visited" [color]="step.passed? 'success' : 'danger'">
+              {{step.result.toString()}}
+            </ion-badge>
+          </ion-item>
+        </ion-list>
+
+        <ion-list-header class="no-padding-list-header"
+                         *ngIf="initializedTestCase.testCaseTrackerItem.postAction">Post-Action
+        </ion-list-header>
+
+        <p style="text-align: left;" [innerHTML]="initializedTestCase.testCaseTrackerItem.postAction | sanitize"></p>
+      </div>
+    </ion-slide>
+  </ion-slides>
+</ion-content>

@@ -1,0 +1,177 @@
+<!--
+Copyright 2020 Intland Software GmbH
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<ion-header>
+  <ion-toolbar #navBar color="downloaded-test-runs">
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBackToTestRunDetails()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>Back
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{testRunData.testCaseTrackerItem.name}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="cards-bg">
+  <div #toolbarDiv>
+    <ion-toolbar>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <timer #totalRunTimer [isPaused]="pauseTimers" (timeValueChanged)="changeTimeSpent($event)"
+                   [startTime]="{value: testRunData.runTime, index: indexOfLoadedTestCase}"></timer>
+          </ion-col>
+          <ion-col size="6">
+            <div class="ion-float-right">
+              {{swiper?.activeIndex + 1}} / {{testRunData.testStepsWithResults?.length}}
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-toolbar>
+  </div>
+
+  <div class="slides-pagination-container"></div>
+
+  <ion-slides #slides pager [options]="sliderOptions"
+              [ngStyle]="{height: 'calc(100% - ' + toolbarDiv.offsetHeight + 'px)'}">
+    <ion-slide *ngFor="let step of testRunData.testStepsWithResults">
+      <div class="slide-content">
+        <div class="cardsContainer">
+          <ion-grid>
+            <ion-row class="step-row">
+              <ion-col size="12">
+                <ion-card>
+                  <ion-item>
+                    <ion-label>
+                      <h1>Action</h1>
+                    </ion-label>
+                    <ion-badge slot="end" *ngIf="step.visited" [color]="step.passed? 'success' : 'danger'">
+                      {{step.result.toString()}}
+                    </ion-badge>
+                  </ion-item>
+                  <ion-card-content>
+                    <span [innerHTML]="step.actionPreview | sanitize"></span>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" size-sm="6">
+                <ion-card class="actual-expected-card">
+                  <ion-item>
+                    <ion-label>
+                      <h1>Expected</h1>
+                    </ion-label>
+                  </ion-item>
+                  <ion-card-content>
+                    <span [innerHTML]="step.expectedResultPreview | sanitize"></span>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" size-sm="6">
+                <ion-card class="actual-expected-card">
+                  <ion-item>
+                    <ion-label>
+                      <h1>Actual</h1>
+                    </ion-label>
+                    <ion-button slot="end" fill="clear" style="position: relative;">
+                      <ion-icon slot="icon-only" name="attach"></ion-icon>
+                      <input #attachmentInput style="position: absolute; height: 100%; width: 100%; opacity: 0;"
+                             type="file" title="" (change)="onFileChange(step, attachmentInput)"/>
+                    </ion-button>
+                  </ion-item>
+                  <ion-card-content>
+                    <textarea #actualResultInput [ngStyle]="{
+                      'height': actualResultInput.scrollHeight + 'px',
+                      'width': '100%',
+                      'border': 'none'
+                      }"
+                              placeholder="Enter actual result" rows="1"
+                              [(ngModel)]="step.actualResultMarkup"></textarea>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="step.uploads?.length">
+              <ion-col size="4" *ngFor="let upload of step.uploads">
+                <ion-badge>{{upload.visibleFileName | abbreviate:35}}</ion-badge>
+                <ion-button fill="clear" size="small" (click)="removeAttachment(attachmentInput, step, upload)">
+                  <ion-icon slot="icon-only" name="close"></ion-icon>
+                </ion-button>
+                <img [src]="upload.imgsrc | sanitize:'url'" alt="">
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+        <div class="buttonsContainer">
+          <ion-grid #bottomGrid>
+            <ion-row [ngStyle]="{height: buttonRowHeight + 'px'}">
+              <ion-col size="6">
+                <ion-button expand="block" color="success" style="height: 100%;" (click)="passStep(step)">
+                  Pass
+                  <ion-icon slot="end" name="checkmark"></ion-icon>
+                </ion-button>
+              </ion-col>
+              <ion-col size="6">
+                <ion-button expand="block" color="danger" style="height: 100%;" (click)="failStep(step)">
+                  Fail
+                  <ion-icon slot="end" name="close"></ion-icon>
+                </ion-button>
+              </ion-col>
+            </ion-row>
+            <ion-row style="height: 65px;">
+              <ion-col size="12">&nbsp;</ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </div>
+    </ion-slide>
+  </ion-slides>
+</ion-content>
+
+<ion-fab vertical="bottom" horizontal="end">
+  <ion-fab-button>
+    <ion-icon name="arrow-dropleft"></ion-icon>
+  </ion-fab-button>
+
+  <ion-fab-list side="start">
+    <ion-fab-button color="default" (click)="openBugReportModal($event)">
+      <ion-icon name="bug"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button color="default" (click)="finishTestCaseWithoutCompletion($event)">
+      <ion-icon name="square"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button [color]="pauseTimers? 'danger' : 'default'" (click)="toggleTimer($event)">
+      <ion-icon name="pause"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button color="default" (click)="finishTestCaseAndJumpToNextTestCase($event)">
+      <ion-icon name="skip-forward"></ion-icon>
+    </ion-fab-button>
+  </ion-fab-list>
+</ion-fab>

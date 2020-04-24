@@ -1,0 +1,85 @@
+<!--
+Copyright 2020 Intland Software GmbH
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Report Bug</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeModal()">close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="addBug()" #form="ngForm">
+
+    <div *ngIf="!selectedTracker?.newItemSchema" class="warning-box">
+      <ion-icon name="warning"></ion-icon>
+      <span>You have no permission to create items in the selected bug tracker!</span>
+    </div>
+
+    <div *ngIf="missingRequiredFieldWarningMessage" class="warning-box">
+      <ion-icon name="warning"></ion-icon>
+      <span>{{missingRequiredFieldWarningMessage}}</span>
+    </div>
+
+    <ion-item *ngIf="selectedTracker?.newItemSchema">
+      <ion-label position="floating">Summary <ion-text *ngIf="selectedTracker?.newItemSchema.type.required.includes('name')" color="danger">*</ion-text></ion-label>
+      <ion-input type="text" [(ngModel)]="summary" name="summary" [required]="selectedTracker?.newItemSchema.type.required.includes('name')"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Project <ion-text color="danger">*</ion-text></ion-label>
+      <ion-select [(ngModel)]="selectedProject" name="project" (ionChange)="checkMissingRequiredField()" required>
+        <ion-select-option *ngFor="let ptInfo of projectTrackerInfo"
+                           [value]="ptInfo">{{ptInfo.project.name}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Tracker <ion-text color="danger">*</ion-text></ion-label>
+      <ion-select [(ngModel)]="selectedTracker" name="tracker" (ionChange)="checkMissingRequiredField()" required>
+        <ion-select-option *ngFor="let trackerWithSchema of selectedProject?.bugTrackers"
+                           [value]="trackerWithSchema">{{trackerWithSchema.tracker.name}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item *ngIf="selectedTracker?.newItemSchema">
+      <ion-label position="floating">Description <ion-text *ngIf="selectedTracker?.newItemSchema.type.required.includes('description')" color="danger">*</ion-text></ion-label>
+      <ion-textarea name="description" [required]="selectedTracker?.newItemSchema.type.required.includes('description')" placeholder="Enter description" [(ngModel)]="description"></ion-textarea>
+    </ion-item>
+
+    <div class="ion-padding">
+      <ion-button expand="block" type="submit" [disabled]="!form.valid || !selectedTracker?.newItemSchema">
+        Report bug
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

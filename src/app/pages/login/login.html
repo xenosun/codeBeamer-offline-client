@@ -1,0 +1,90 @@
+<!--
+Copyright 2020 Intland Software GmbH
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      codeBeamer Offline Testing App
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ion-text-center content-container">
+
+    <img src="assets/icon.png" class="slide-image" alt="App logo"/>
+
+    <ion-list>
+
+      <ion-item>
+        <ion-label position="floating">Server address</ion-label>
+        <ion-input type="text" [(ngModel)]="appService.base"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">User name</ion-label>
+        <ion-input type="text" [(ngModel)]="userName"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Password</ion-label>
+        <ion-input type="password" [(ngModel)]="password"></ion-input>
+      </ion-item>
+
+    </ion-list>
+
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-button (click)="login()" [disabled]="loginDisabled">Login</ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button (click)="showOfflineLoginForm()" [disabled]="!appService.base">Offline Login</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+        </ion-col>
+        <ion-col>
+          <ion-button (click)="loginWithSSO()" [disabled]="!appService.base">Login with SSO</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-footer>
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button fill="clear" (click)="sendLogs()">Send logs to dev</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-footer>
+  </div>
+
+</ion-content>
