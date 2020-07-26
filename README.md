@@ -22,6 +22,23 @@ The following tools required for the development
 * cordova
 * xcode (for ios build)
 
+## Getting started with iOS build
+
+For this guide, it is assumed that Xcode is properly configured for local development and git, node and npm are all installed, also there is a supported iOS device which can be attached to the development machine.
+
+0. Make sure that the following npm packages are installed globally:
+* @ionic/cli
+* cordova
+* cordova-res
+1. Clone the repository
+2. Go into the cloned folder `cd offline-client-app`
+3. Install dependencies with `npm install`
+4. Generate resources with cordova-res `ionic cordova resources ios`
+5. Build the project for iOS production `ionic cordova build ios --prod`
+6. Open Xcode and open the built project (*offline-client-app/platforms/ios/cB Offline Test App.xcodeproj*)
+7. Attach the iOS device to the machine and select it in Xcode
+8. Click on Run (build and run) then wait for the app to be installed to the iOS device and it will start automatically
+
 ## Authors
 
 * **Intland Software GmbH** - [Website](https://intland.com)
